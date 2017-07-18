@@ -60,6 +60,7 @@ export default class Artwork extends Component {
 
     if (isImgur) {
       if (!/imgur\.com\/a\//i.test(url)) {
+        url = url.replace(/m\.imgur\.com/ig, 'i.imgur.com')
         this.setState({url: `${url}.jpg`});
         return;
       }
