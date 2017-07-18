@@ -1,12 +1,20 @@
-import React, {Component} from 'react';
+import React, {Component, PropTypes} from 'react';
 import {Card, CardActions, CardHeader, CardMedia, CardTitle, CardText} from 'material-ui/Card';
 import FlatButton from 'material-ui/FlatButton';
-const artworkStyle = {
-  width: 300,
-  display: 'inline-block'
-};
+
+const getStyle = (context) => {
+  return {
+    display: 'inline-block',
+    width: '100%',
+    marginBottom: '8px'
+  };
+}
 
 export default class Artwork extends Component {
+  static contextTypes = {
+    muiTheme: PropTypes.object.isRequired,
+  };
+
   constructor(props) {
     super(props);
     this.state = {
@@ -98,7 +106,7 @@ export default class Artwork extends Component {
     let authorFlair = [bestOfRgdFlair, greatPhotosFlair, annualAwardWinnerFlair].join(' ');
     submission_permalink = 'http://reddit.com' + submission_permalink;
     return (
-      <Card style={artworkStyle}>
+      <Card style={getStyle(this.context)}>
         <CardHeader
           title={author}
           subtitle={authorFlair}

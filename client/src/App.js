@@ -7,7 +7,7 @@ import './App.css';
 import Artwork from './components/Artwork';
 import CategoryDropDown from './components/CategoryDropDown';
 import injectTapEventPlugin from 'react-tap-event-plugin';
-
+import { Grid, Row, Col } from 'react-flexbox-grid';
 // Needed for onTouchTap
 // http://stackoverflow.com/a/34015469/988941
 injectTapEventPlugin();
@@ -33,15 +33,20 @@ class App extends Component {
           <AppBar title="Irate Cat" showMenuIconButton={false} >
             <CategoryDropDown/>
           </AppBar>
+          <Grid fluid>
           <h1>Users</h1>
-          {
-            console.log(users),
-            users.map((user) => {
-              return (
-                <Artwork key={user.id} {...user} />
-              );
-            })
-          }
+          <Row>
+              {
+                users.map((user) => {
+                  return (
+                    <Col xs={12} md={3}>
+                      <Artwork key={user.id} {...user} />
+                    </Col>
+                  );
+                })
+              }
+          </Row>
+        </Grid>
         </div>
       </MuiThemeProvider>
     );
