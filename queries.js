@@ -79,9 +79,57 @@ function getTopArtwork(req, res, next) {
     });
 }
 
+function getNewArtwork(req, res, next) {
+  let daysAgo = parseInt(req.params.days_ago) || 0;
+  let daysAgoQuery = daysAgo > 0 ? `WHERE a.created_utc > $1` : '';
+  let utcTimeAgo = ((new Date()).getTime() / 1000) - daysAgo * 24 * 60 * 60;
+  console.log('utcTimeAgo', utcTimeAgo, req.params.days_ago)
+
+  db.any(`SELECT a.id AS id,
+    a.submission_id AS submission_id,
+    a.likes AS likes,
+    a.score AS score,
+    a.gilded AS gilded,
+    a.author AS author,
+    a.controversiality AS controversiality,
+    a.body AS body,
+    a.downs AS downs,
+    a.created AS created,
+    a.created_utc AS created_utc,
+    a.ups AS ups,
+    a.urls AS urls,
+    a.replies AS replies,
+    u.is_submitter AS is_submitter,
+    u.is_artist AS is_artist,
+    u.best_of_rgd_wins AS best_of_rgd_wins,
+    u.great_photos_wins AS great_photos_wins,
+    u.is_annual_award_winner AS is_annual_award_winner,
+    s.score AS submission_score,
+    s.permalink AS submission_permalink
+    FROM artwork a
+    JOIN users u
+      ON a.author = u.name
+    JOIN submissions s
+      ON a.submission_id = s.id
+    ${daysAgoQuery}
+    ORDER BY created_utc DESC
+    LIMIT 300;`, utcTimeAgo)
+    .then(function (data) {
+      res.status(200)
+        .json({
+          status: 'success',
+          data: data,
+          message: 'Retrieved newest artwork'
+        });
+    })
+    .catch(function (err) {
+      return next(err);
+    });
+}
+
 function getTopArtworkByRating(req, res, next) {
   let daysAgo = parseInt(req.params.days_ago) || 0;
-  let daysAgoQuery = daysAgo > 0 ? `WHERE a.created_utc > $1 AND s.over_18 = false` : '';
+  let daysAgoQuery = daysAgo > 0 ? `WHERE a.created_utc > $1` : '';
   let utcTimeAgo = ((new Date()).getTime() / 1000) - daysAgo * 24 * 60 * 60;
   console.log('utcTimeAgo', utcTimeAgo, req.params.days_ago)
 
@@ -150,7 +198,8 @@ module.exports = {
     getSingleSubmission,
     getTopArtwork,
     getTopArtworkByRating,
-    getTopArtists
+    getTopArtists,
+    getNewArtwork
 };
 
 
