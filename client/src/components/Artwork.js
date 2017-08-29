@@ -27,9 +27,23 @@ export default class Artwork extends Component {
     if (this.props.urls && this.props.urls.length > 0) {
       this.updateUrl(this.props.urls[0]);
     }
-    
   }
 
+  async convertImgurGalleryToImage(galleryId) {
+    let imgurGalleryUrl = 'https://api.imgur.com/3/gallery/album/';
+    let imgurClientId = 'af72ed44734d314';
+    let response = await fetch(imgurGalleryUrl + galleryId, {
+      headers: new Headers({
+        'Authorization': `Client-ID ${imgurClientId}`
+      })
+    }).then((response) => response.json());
+
+    let images = response && response.data && response.data.images;
+    if (images && images.length > 0) {
+      console.log('gallery response', response.data)
+      this.setState({url: images[0].link});
+    }
+  }
   async convertImgurAlbumToImage(albumId) {
     let imgurAlbumUrl = 'https://api.imgur.com/3/album/';
     let imgurClientId = 'af72ed44734d314';
@@ -46,8 +60,11 @@ export default class Artwork extends Component {
   }
 
   async convertInstagramUrlToImage(instagramUrl) {
-    let response = await fetch(instagramUrl.replace(/https?:\/\/w?w?w?\.?instagram\.com/, '') + '?__a=1');
-    if (response && response.graphql) console.log(response.graphql.shortcode_media.display_url)
+    instagramUrl = instagramUrl.replace(/https?:\/\/w?w?w?\.?instagram\.com/, '');
+    let response = await fetch(instagramUrl + '?__a=1');
+    if (response && response.graphql) {
+      this.setState({url: 'http://www.instagram.com' + response.graphql.shortcode_media.display_url});
+    }
   }
 
   updateUrl(url) {
@@ -59,6 +76,12 @@ export default class Artwork extends Component {
     let isImgur = /imgur\.com/.test(url);
 
     if (isImgur) {
+      let imgurGalleryMatch = url.match(/https?:\/\/imgur.com\/gallery\/(.+)/i);
+      if (imgurGalleryMatch && imgurGalleryMatch.length > 1 && /imgur\.com\/gallery\//i.test(url)) {
+        this.convertImgurGalleryToImage(imgurGalleryMatch[1]);
+        return;
+      }
+
       if (!/imgur\.com\/a\//i.test(url)) {
         url = url.replace(/m\.imgur\.com/ig, 'i.imgur.com')
         this.setState({url: `${url}.jpg`});
@@ -72,7 +95,7 @@ export default class Artwork extends Component {
       }
     }
     if (/instagram\.com\/p\//i.test(url)) {
-      this.convertInstagramUrlToImage(url)
+      this.convertInstagramUrlToImage(url);
     }
     console.log(url)
     // this.setState({url: url});
