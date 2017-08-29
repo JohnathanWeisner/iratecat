@@ -19,7 +19,7 @@ class App extends Component {
   }
 
   componentDidMount() {
-    fetch('/api/artwork/top/rating/3000')
+    fetch('/api/artwork/new/7')
       .then(res => res.json())
       .then(({data}) => this.setState({users: data}));
   }
