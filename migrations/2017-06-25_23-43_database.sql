@@ -33,7 +33,7 @@ CREATE TABLE submissions (
 
 CREATE TABLE artwork (
     id varchar(12) PRIMARY KEY,
-    submission_id varchar(12) REFERENCES submissions (id),
+    submission_id varchar(12) REFERENCES submissions (id) ON DELETE CASCADE,
     likes int,
     score int,
     gilded int,
